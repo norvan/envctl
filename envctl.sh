@@ -1,12 +1,12 @@
 _api()
 {
-    local cur prev ENVCTL_REP ENVCTL_ENVS ENV_LIST
+    local cur prev _ENV_LIST
 
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    ENVCTL_REP=~/.envctl/envs/
-    ENV_LIST=$(ls $ENVCTL_REP | grep ".env" | sed 's/.env$//')
+    ENVCTL_DIR=${ENVCTL_DIR:=~/.envctl/envs/}
+    _ENV_LIST=$(ls $ENVCTL_DIR | grep ".env" | sed 's/.env$//')
 
     case ${COMP_CWORD} in
         1)
@@ -24,19 +24,19 @@ _api()
                     COMPREPLY=()
                     ;;
                 show)
-                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    COMPREPLY=($(compgen -W "${_ENV_LIST}" -- ${cur}))
                     ;;
                 edit)
-                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    COMPREPLY=($(compgen -W "${_ENV_LIST}" -- ${cur}))
                     ;;
                 set)
-                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    COMPREPLY=($(compgen -W "${_ENV_LIST}" -- ${cur}))
                     ;;
                 unset)
-                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    COMPREPLY=($(compgen -W "${_ENV_LIST}" -- ${cur}))
                     ;;
                 delete)
-                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    COMPREPLY=($(compgen -W "${_ENV_LIST}" -- ${cur}))
                     ;;
             esac
             ;;
@@ -48,23 +48,22 @@ _api()
 
 envctl()
 {
-    local ENVCTL_REP
-    ENVCTL_REP=~/.envctl/envs/
+    ENVCTL_DIR=${ENVCTL_DIR:=~/.envctl/envs/}
     list() {
-        ls $ENVCTL_REP | grep ".env" | sed 's/.env$//'
+        ls $ENVCTL_DIR | grep ".env" | sed 's/.env$//'
     }
     show() {
-        cat $ENVCTL_REP"/"$1".env"
+        cat $ENVCTL_DIR"/"$1".env"
     }
     delete() {
-        rm $ENVCTL_REP"/"$1".env"
+        rm $ENVCTL_DIR"/"$1".env"
     }
     do_unset () {
         local env_to_unset NEW_ENV curr_env
         for env_to_unset in $@; do
             # TODO: handle case where env_to_unset is actually not set
             # TODO: handle case where the vars are in another env
-            unset $(grep -v '^#' $ENVCTL_REP"/"$env_to_set".env" | sed 's/=.*$//' | xargs)
+            unset $(grep -v '^#' $ENVCTL_DIR"/"$env_to_set".env" | sed 's/=.*$//' | xargs)
             NEW_ENV=""
             for curr_env in $(echo "$ENVCTL_ENVS" | tr ':' '\n'); do
                 if [ "$curr_env" != "$env_to_unset" ]; then
@@ -82,8 +81,8 @@ envctl()
         local env_to_set NEW_ENV
         for env_to_set in $@; do
 
-            set -a; source $ENVCTL_REP"/"$env_to_set".env"; set +a
-            #export $(grep -v '^#' $ENVCTL_REP"/"$env_to_set".env" | xargs)
+            set -a; source $ENVCTL_DIR"/"$env_to_set".env"; set +a
+            #export $(grep -v '^#' $ENVCTL_DIR"/"$env_to_set".env" | xargs)
             # TODO: if it loads a var that's already been set by another, with a different value, show warning
 
             # Remove env_to_set from ENVCTL_ENVS
@@ -139,7 +138,7 @@ envctl()
                 echo "TODO, a way to see which envs come from where"
                 ;;
             edit)
-                "${EDITOR:-nano}" $ENVCTL_REP"/"$2".env"
+                "${EDITOR:-nano}" $ENVCTL_DIR"/"$2".env"
                 ;;
             show)
                 show $2
