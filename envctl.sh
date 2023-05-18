@@ -155,14 +155,15 @@ envctl()
                 delete $2
                 ;;
             version|--version|-v)
-                echo 0.1.0-dev
+                local _VERSION
+                _VERSION=23.05.18.001
+                echo $_VERSION
                 ;;
             --upgrade)
                 curl https://raw.githubusercontent.com/norvan/envctl/main/envctl.sh > ~/.envctl/envctl.sh
                 source ~/.envctl/envctl.sh
                 ;;
             help|--help)
-                echo 0.1.0
                 ;;
             *)
                 echo "Unknown commant: "$1" try one of: ls describe status show edit set unset"
