@@ -60,6 +60,7 @@ envctl()
         rm $ENVCTL_REP"/"$1".env"
     }
     do_unset () {
+        local env_to_unset NEW_ENV curr_env
         for env_to_unset in $@; do
             # TODO: handle case where env_to_unset is actually not set
             # TODO: handle case where the vars are in another env
@@ -78,6 +79,7 @@ envctl()
         done
     }
     do_set () {
+        local env_to_set NEW_ENV
         for env_to_set in $@; do
 
             set -a; source $ENVCTL_REP"/"$env_to_set".env"; set +a
@@ -109,6 +111,7 @@ envctl()
         [ -z "$1" ] && list || case $1 in
             ls)
                 echo "Available environments:"
+                local curr_env position count
                 for i in $(list); do
 
                     position=" "
