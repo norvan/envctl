@@ -10,7 +10,7 @@ _api()
 
     case ${COMP_CWORD} in
         1)
-            COMPREPLY=($(compgen -W "ls status describe show edit set unset delete --version --help" -- ${cur}))
+            COMPREPLY=($(compgen -W "ls status describe show edit set unset delete --version --help --upgrade" -- ${cur}))
             ;;
         2)
             case ${prev} in
@@ -156,6 +156,10 @@ envctl()
                 ;;
             version|--version|-v)
                 echo 0.1.0-dev
+                ;;
+            --upgrade)
+                curl https://raw.githubusercontent.com/norvan/envctl/main/envctl.sh > ~/.envctl/envctl.sh
+                source ~/.envctl/envctl.sh
                 ;;
             help|--help)
                 echo 0.1.0
