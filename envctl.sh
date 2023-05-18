@@ -10,7 +10,7 @@ _api()
 
     case ${COMP_CWORD} in
         1)
-            COMPREPLY=($(compgen -W "ls status describe show edit set unset --version --help" -- ${cur}))
+            COMPREPLY=($(compgen -W "ls status describe show edit set unset delete --version --help" -- ${cur}))
             ;;
         2)
             case ${prev} in
@@ -35,6 +35,9 @@ _api()
                 unset)
                     COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
                     ;;
+                delete)
+                    COMPREPLY=($(compgen -W "${ENV_LIST}" -- ${cur}))
+                    ;;
             esac
             ;;
         *)
@@ -53,8 +56,12 @@ envctl()
     show() {
         cat $ENVCTL_REP"/"$1".env"
     }
+    delete() {
+        rm $ENVCTL_REP"/"$1".env"
+    }
     do_unset () {
         for env_to_unset in $@; do
+            # TODO: handle case where env_to_unset is actually not set
             # TODO: handle case where the vars are in another env
             unset $(grep -v '^#' $ENVCTL_REP"/"$env_to_set".env" | sed 's/=.*$//' | xargs)
             NEW_ENV=""
@@ -142,8 +149,11 @@ envctl()
                 shift 1
                 do_unset $@
                 ;;
+            delete)
+                delete $2
+                ;;
             version|--version|-v)
-                echo 0.1.0
+                echo 0.1.0-dev
                 ;;
             help|--help)
                 echo 0.1.0
